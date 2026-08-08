@@ -1,0 +1,21 @@
+{
+  "LFG": {
+    "Title": "Hameçons & Couronnes",
+    "Subtitle": "Pêchez. Explorez. Affrontez les monstres des eaux.",
+    "LauncherTitle": "Ouvrir Hameçons & Couronnes",
+    "Intro": "Choisissez une zone d’eau douce et une période de pêche.",
+    "Controls": "Maintenez Mouliner ou la barre Espace pour garder le poisson dans la zone de capture.",
+    "Cast": "Lancer la ligne",
+    "Reel": "Mouliner !",
+    "Capture": "Capture",
+    "Close": "Fermer",
+    "PlayAgain": "Relancer la ligne",
+    "Caught": "Poisson attrapé !",
+    "Escaped": "Le poisson s’est échappé…",
+    "EscapedHint": "La ligne s’est détendue au pire moment. Reprenez votre souffle et retentez votre chance.",
+    "Weight": "Poids",
+    "Rarity": "Rareté",
+    "Score": "Score",
+    "ChatCaught": "a attrapé"
+  }
+}

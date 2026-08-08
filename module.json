@@ -1,0 +1,36 @@
+{
+  "id": "light-fishing-minigame",
+  "title": "Hameçons & Couronnes",
+  "description": "Mini-jeu de pêche complet en français pour Foundry VTT : 18 zones, 144 poissons, alternance jour/nuit, boss, catalogue, classement et arbres de talents.",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Saurusius",
+      "url": "https://github.com/Saurusius"
+    }
+  ],
+  "url": "https://github.com/Saurusius/hamecons-et-couronnes",
+  "manifest": "https://raw.githubusercontent.com/Saurusius/hamecons-et-couronnes/main/module.json",
+  "download": "https://github.com/Saurusius/hamecons-et-couronnes/releases/download/v1.0.0/hamecons-et-couronnes-v1.0.0.zip",
+  "license": "LICENSE",
+  "readme": "https://github.com/Saurusius/hamecons-et-couronnes/blob/main/README.md",
+  "bugs": "https://github.com/Saurusius/hamecons-et-couronnes/issues",
+  "changelog": "https://github.com/Saurusius/hamecons-et-couronnes/releases/tag/v1.0.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.365"
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/fishing.css"
+  ],
+  "languages": [
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ]
+}
