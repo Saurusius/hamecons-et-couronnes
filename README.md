@@ -1,4 +1,4 @@
-# Hameçons & Couronnes
+# 🎣 Hameçons & Couronnes
 
 Mini-jeu de pêche complet en français pour **Foundry VTT 14**.
 
