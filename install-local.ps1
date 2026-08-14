@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ModuleId = "light-fishing-minigame"
-$ExpectedVersion = "1.0.0"
+$ExpectedVersion = "1.1.1"
 $Source = (Resolve-Path (Split-Path -Parent $MyInvocation.MyCommand.Path)).Path
 $ModulesPath = Join-Path $FoundryDataPath "modules"
 $Target = Join-Path $ModulesPath $ModuleId
@@ -72,8 +72,9 @@ try {
   $FishCount = @(Get-ChildItem -LiteralPath (Join-Path $Target "assets\fish") -Filter "*.webp" -File).Count
   $PreviewCount = @(Get-ChildItem -LiteralPath (Join-Path $Target "assets\fish-preview") -Filter "*.webp" -File).Count
   $BiomeCount = @(Get-ChildItem -LiteralPath (Join-Path $Target "assets\biomes") -Filter "*.webp" -File).Count
-  if ($FishCount -ne 144 -or $PreviewCount -ne 144 -or $BiomeCount -ne 36) {
-    throw "Assets incomplets : poissons $FishCount/144, miniatures $PreviewCount/144, régions $BiomeCount/36."
+  $UnknownFishPlaceholder = Join-Path $Target "assets\ui\poisson-inconnu.webp"
+  if ($FishCount -ne 144 -or $PreviewCount -ne 144 -or $BiomeCount -ne 36 -or -not (Test-Path -LiteralPath $UnknownFishPlaceholder)) {
+    throw "Assets incomplets : poissons $FishCount/144, miniatures $PreviewCount/144, régions $BiomeCount/36, placeholder inconnu $(Test-Path -LiteralPath $UnknownFishPlaceholder)."
   }
 
   Write-Host ""

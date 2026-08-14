@@ -24,3 +24,8 @@ Première version publique stable du mini-jeu de pêche pour Foundry VTT 14.
 ## Manifest d’installation
 
 `https://raw.githubusercontent.com/Saurusius/hamecons-et-couronnes/main/module.json`
+
+
+## Correctif 1.0.2
+- Remplacement des silhouettes temporaires des espèces non découvertes par la nouvelle illustration enluminée `Poisson inconnu`.
+- L’illustration est désormais utilisée dans le catalogue et la fiche de détail des espèces non découvertes.

@@ -77,6 +77,70 @@ const TALENT_TREES = Object.freeze([
 
 const TALENTS_BY_ID = new Map(TALENT_TREES.flatMap((tree) => tree.talents.map((talent) => [talent.id, { ...talent, treeId: tree.id, treeName: tree.name }])));
 
+
+const BOSS_TROPHIES = Object.freeze([
+  { id: "discipline-aldorie", zoneId: "rostland", name: "Discipline aldorie", icon: "fa-hand-fist", effect: "Réactivité du moulinet : +5%.", lore: "Le Patriarche vous a appris qu’un geste précis vaut mieux qu’un geste brutal." },
+  { id: "patience-roseaux", zoneId: "ceinture-verte", name: "Patience des roseaux", icon: "fa-seedling", effect: "Après 1 s de suivi continu, la zone de capture s’élargit de 6%.", lore: "Les eaux de la Ceinture Verte récompensent ceux qui savent tenir leur position." },
+  { id: "morsure-tuskwater", zoneId: "tuskwater", name: "Morsure du Tuskwater", icon: "fa-tooth", effect: "Gain de capture : +6% contre les poissons de difficulté 4–5 et les boss.", lore: "La Mâchoire vous a appris à ne jamais relâcher une prise difficile." },
+  { id: "charge-brisee", zoneId: "kamelands", name: "Charge brisée", icon: "fa-shield-halved", effect: "Mouvements brusques : −8% supplémentaires.", lore: "Le Bélier frappe fort ; vous avez appris à voir venir l’impact." },
+  { id: "racines-profondes", zoneId: "narlmarches", name: "Racines profondes", icon: "fa-tree", effect: "Sous 30% de progression, la perte de capture est réduite de 20%.", lore: "Comme les racines noyées, votre ligne refuse désormais de lâcher prise." },
+  { id: "science-meandres", zoneId: "sellen-hills", name: "Science des méandres", icon: "fa-route", effect: "Durée des trajectoires du poisson : +8%.", lore: "Les Sept Méandres vous ont appris à lire un trajet avant même qu’il ne se termine." },
+  { id: "poursuite-libre", zoneId: "dunsward", name: "Poursuite libre", icon: "fa-wind", effect: "Lorsque le poisson sort de la zone, le moulinet reçoit une légère assistance vers sa direction.", lore: "Le Coursier ne se laisse pas suivre : il faut apprendre à le poursuivre." },
+  { id: "sang-froid-cimes", zoneId: "levenies", name: "Sang-froid des cimes", icon: "fa-mountain", effect: "Vitesse maximale des poissons de difficulté 5 : −5%.", lore: "Dans les eaux froides des Levenies, la précipitation est l’ennemie du pêcheur." },
+  { id: "repit-passeur", zoneId: "hooktongue", name: "Répit du passeur", icon: "fa-anchor", effect: "Chaque prise commence avec 0,30 s de grâce supplémentaire, y compris les phases de boss.", lore: "Vous savez désormais profiter du bref instant où le monstre jauge encore sa proie." },
+  { id: "palissade-brisee", zoneId: "drelev", name: "Palissade brisée", icon: "fa-shield", effect: "Zone de capture : +6% contre les boss.", lore: "Le Briseur vous a appris qu’une défense plus large vaut parfois mieux qu’une ligne plus dure." },
+  { id: "instinct-tigre", zoneId: "tiger-lords", name: "Instinct du Tigre", icon: "fa-paw", effect: "Fréquence des feintes : −25%.", lore: "Le Tigre à Branchies vous a appris à distinguer une attaque d’une feinte." },
+  { id: "couronne-champion", zoneId: "rushlight", name: "Couronne du champion", icon: "fa-medal", effect: "Récompenses : +8% contre les boss et poissons légendaires.", lore: "Une victoire digne de Rushlight mérite toujours une récompense à sa hauteur." },
+  { id: "derniere-flaque", zoneId: "glenebon-lowlands", name: "Dernière flaque", icon: "fa-droplet", effect: "Au-dessus de 70% de progression, le gain de capture augmente de 10%.", lore: "Le Dévoreur vous a appris à terminer une lutte avant qu’elle ne puisse se retourner." },
+  { id: "tempo-virtuose", zoneId: "pitax", name: "Tempo du virtuose", icon: "fa-music", effect: "Oscillations parasites du poisson : −25%.", lore: "Le Grand Virtuose vous a laissé le sens du rythme — même sous l’eau." },
+  { id: "souffle-manticore", zoneId: "glenebon-uplands", name: "Souffle de la Manticore", icon: "fa-feather-pointed", effect: "Zone de capture : +4% contre les poissons de difficulté 4–5.", lore: "Vous avez appris à garder de la marge face aux créatures les plus imprévisibles." },
+  { id: "anomalie-adaptative", zoneId: "numeria", name: "Anomalie adaptative", icon: "fa-atom", effect: "8% de chance d’annuler chaque accélération ou feinte brutale.", lore: "Quelque chose dans l’Anomalie a changé votre manière de réagir aux mouvements impossibles." },
+  { id: "murmure-eaux", zoneId: "thousand-voices", name: "Murmure des eaux", icon: "fa-comments", effect: "Dérives imprévues de la trajectoire : −30%.", lore: "À force d’écouter les Milles-Voix, certaines intentions du courant deviennent presque audibles." },
+  { id: "volonte-leviathan", zoneId: "branthlend", name: "Volonté du Léviathan", icon: "fa-snowflake", effect: "Les combats de boss commencent chaque phase avec +5% de progression.", lore: "Le Léviathan du Pic Blanc vous a appris que survivre à une phase est déjà une victoire." }
+]);
+
+const BOSS_TROPHIES_BY_ID = new Map(BOSS_TROPHIES.map((trophy) => [trophy.id, trophy]));
+const BOSS_TROPHIES_BY_ZONE = new Map(BOSS_TROPHIES.map((trophy) => [trophy.zoneId, trophy]));
+
+function hasBossTrophy(profile, trophyOrZoneId) {
+  const trophy = BOSS_TROPHIES_BY_ID.get(trophyOrZoneId) ?? BOSS_TROPHIES_BY_ZONE.get(trophyOrZoneId);
+  if (!trophy) return false;
+  const boss = BOSS_PAR_ZONE.get(trophy.zoneId);
+  return Boolean(boss && profile?.especes?.[boss.id]);
+}
+
+function trophyCount(profile) {
+  return BOSS_TROPHIES.reduce((sum, trophy) => sum + (hasBossTrophy(profile, trophy.id) ? 1 : 0), 0);
+}
+
+function trophyForFish(fish) {
+  return fish?.boss ? BOSS_TROPHIES_BY_ZONE.get(fish.zoneId) ?? null : null;
+}
+
+function bossTrophyEffects(profile, fish) {
+  const has = (zoneId) => hasBossTrophy(profile, zoneId);
+  return {
+    controlScale: has("rostland") ? 1.05 : 1,
+    focusZoneBonus: has("ceinture-verte") ? 0.06 : 0,
+    hardFishGainScale: has("tuskwater") && (fish?.boss || fish?.difficulte >= 4) ? 1.06 : 1,
+    suddenReductionBonus: has("kamelands") ? 0.08 : 0,
+    lowProgressLossScale: has("narlmarches") ? 0.80 : 1,
+    targetDurationScale: has("sellen-hills") ? 1.08 : 1,
+    pursuitAssist: has("dunsward") ? 0.18 : 0,
+    legendarySpeedScale: has("levenies") && fish?.difficulte >= 5 ? 0.95 : 1,
+    graceBonus: has("hooktongue") ? 0.30 : 0,
+    bossZoneScale: has("drelev") && fish?.boss ? 1.06 : 1,
+    feintScale: has("tiger-lords") ? 0.75 : 1,
+    rewardBonus: has("rushlight") && (fish?.boss || fish?.rarete === "Légendaire") ? 0.08 : 0,
+    finishingGainScale: has("glenebon-lowlands") ? 1.10 : 1,
+    wobbleScale: has("pitax") ? 0.75 : 1,
+    hardFishZoneScale: has("glenebon-uplands") && (fish?.boss || fish?.difficulte >= 4) ? 1.04 : 1,
+    anomalyNullifyChance: has("numeria") ? 0.08 : 0,
+    driftScale: has("thousand-voices") ? 0.70 : 1,
+    bossPhaseStartBonus: has("branthlend") && fish?.boss ? 0.05 : 0
+  };
+}
+
 let activeGame = null;
 let audioContext = null;
 let lastCatch = null;
@@ -172,7 +236,7 @@ function rarityBadge(rarity) {
 
 function defaultProfile() {
   return {
-    version: 5,
+    version: 6,
     totalPrises: 0,
     poidsTotal: 0,
     score: 0,
@@ -296,7 +360,7 @@ function normalizeProfile(raw) {
   profile.plusGrosse = normalizeStoredCatch(source.plusGrosse);
   profile.meilleurePrise = normalizeStoredCatch(source.meilleurePrise);
   profile.dernierePrise = normalizeStoredCatch(source.dernierePrise);
-  profile.version = 5;
+  profile.version = 6;
   return profile;
 }
 
@@ -397,6 +461,7 @@ function profileSummary(profile) {
     poids: profile.poidsTotal,
     record: profile.plusGrosse,
     bosses,
+    trophies: trophyCount(profile),
     zones: unlockedZoneCount(profile)
   };
 }
@@ -412,6 +477,9 @@ async function recordCatch(result) {
   const profile = normalizeProfile(getProfile());
   const previousSpecies = profile.especes[result.fishId];
   result.isNew = !previousSpecies;
+  const unlockedTrophy = result.boss ? trophyForFish(POISSONS_PAR_ID.get(result.fishId)) : null;
+  result.trophyUnlocked = Boolean(unlockedTrophy && !previousSpecies);
+  result.trophyId = unlockedTrophy?.id ?? null;
   const species = previousSpecies
     ? { ...previousSpecies }
     : { nombre: 0, record: 0, premier: result.timestamp, dernier: result.timestamp };
@@ -428,7 +496,7 @@ async function recordCatch(result) {
   if (result.rarity === "Légendaire") profile.capturesLegendaires += 1;
   if (result.boss && species.nombre === 1) profile.bossesCaptures += 1;
   profile.dernierePrise = { ...result };
-  profile.version = 5;
+  profile.version = 6;
 
   if (!profile.plusGrosse || result.weight > profile.plusGrosse.weight) profile.plusGrosse = { ...result };
   if (!profile.meilleurePrise || result.score > profile.meilleurePrise.score) profile.meilleurePrise = { ...result };
@@ -467,7 +535,8 @@ function rollCatch(fish, period, profile) {
   const streakRank = talentRank(profile, "serie-royale");
   const trophyRank = talentRank(profile, "trophees-royaume");
   const streakCount = Math.min(profile.currentStreak, streakRank * 4);
-  const multiplier = 1 + profitableRank * 0.05 + streakCount * 0.03 + (fish.boss ? trophyRank * 0.12 : 0);
+  const trophyEffects = bossTrophyEffects(profile, fish);
+  const multiplier = 1 + profitableRank * 0.05 + streakCount * 0.03 + (fish.boss ? trophyRank * 0.12 : 0) + trophyEffects.rewardBonus;
   const miracle = talentRank(profile, "peche-miraculeuse") > 0 && Math.random() < 0.07;
   const score = Math.max(1, Math.round(baseScore * multiplier * (miracle ? 2 : 1)));
   return {
@@ -496,8 +565,14 @@ function rollCatch(fish, period, profile) {
 
 function gameConfigFor(fish, bossPhase = 0, profile = getProfile()) {
   const base = PROFILS_DIFFICULTE[fish.difficulte] ?? PROFILS_DIFFICULTE[3];
-  const zoneScale = 1 + fish.zoneIndex * 0.022;
-  const phaseScale = fish.boss ? [1.06, 1.18, 1.34][bossPhase] ?? 1.34 : 1;
+  const trophy = bossTrophyEffects(profile, fish);
+  const regularZoneScale = 1 + fish.zoneIndex * 0.022;
+  const regularSpeedZoneScale = 1 + fish.zoneIndex * 0.014;
+  const bossZoneScale = 1 + fish.zoneIndex * 0.010;
+  const bossSpeedZoneScale = 1 + fish.zoneIndex * 0.007;
+  const accelerationZoneScale = fish.boss ? bossZoneScale : regularZoneScale;
+  const maxSpeedZoneScale = fish.boss ? bossSpeedZoneScale : regularSpeedZoneScale;
+  const phaseScale = fish.boss ? [1.00, 1.07, 1.15][bossPhase] ?? 1.15 : 1;
   const gripRank = talentRank(profile, "poigne-assuree");
   const lineRank = talentRank(profile, "fil-renforce");
   const precisionRank = talentRank(profile, "moulinet-precision");
@@ -505,22 +580,42 @@ function gameConfigFor(fish, bossPhase = 0, profile = getProfile()) {
   const calmRank = talentRank(profile, "calme-profondeurs");
   const trackerRank = talentRank(profile, "traqueur-profondeurs");
   const speedScale = Math.max(0.72, 1 - calmRank * 0.04);
+  const zoneDifficultyFloor = fish.boss ? 0.145 : 0.135;
+  const rawZoneHeight = Math.max(zoneDifficultyFloor, base.zoneHeight - fish.zoneIndex * 0.0025 - (fish.boss ? bossPhase * 0.008 : 0));
+  const rawBossMaxSpeed = base.fishMaxSpeed * maxSpeedZoneScale * phaseScale;
+  const bossCappedSpeed = fish.boss ? Math.min(1.18, rawBossMaxSpeed) : rawBossMaxSpeed;
+  const gain = fish.boss
+    ? base.gain * 0.60 / (1 + fish.zoneIndex * 0.009) / 1.05
+    : base.gain * 0.50 / (1 + fish.zoneIndex * 0.009);
+  const loss = fish.boss
+    ? base.loss * (1 + fish.zoneIndex * 0.006) * 0.96
+    : base.loss * (1 + fish.zoneIndex * 0.012);
+
   return {
     ...base,
-    zoneHeight: clamp((base.zoneHeight - fish.zoneIndex * 0.0025 - (fish.boss ? bossPhase * 0.012 : 0)) * (1 + gripRank * 0.04), 0.135, 0.48),
-    fishAcceleration: base.fishAcceleration * zoneScale * phaseScale * speedScale,
-    fishMaxSpeed: base.fishMaxSpeed * (1 + fish.zoneIndex * 0.014) * phaseScale * speedScale,
-    targetMin: Math.max(0.18, base.targetMin / (1 + fish.zoneIndex * 0.012) / phaseScale) * (1 + readingRank * 0.05),
-    targetMax: Math.max(0.48, base.targetMax / (1 + fish.zoneIndex * 0.010) / Math.sqrt(phaseScale)) * (1 + readingRank * 0.05),
-    wobble: base.wobble * (1 + fish.zoneIndex * 0.018) * phaseScale,
-    holdLift: base.holdLift * (1 + precisionRank * 0.04),
-    tapImpulse: base.tapImpulse * (1 + precisionRank * 0.04),
-    gain: base.gain * 0.5 / (1 + fish.zoneIndex * 0.009) / (fish.boss ? 1.12 : 1) * (1 + trackerRank * 0.04),
-    loss: base.loss * (1 + fish.zoneIndex * 0.012) * (fish.boss ? 1.14 : 1) * Math.max(0.58, 1 - lineRank * 0.06),
-    suddenReduction: talentRank(profile, "oeil-exerce") * 0.15,
+    zoneHeight: clamp(rawZoneHeight * (1 + gripRank * 0.04) * trophy.bossZoneScale * trophy.hardFishZoneScale, zoneDifficultyFloor, 0.50),
+    fishAcceleration: Math.min(fish.boss ? 3.00 : Infinity, base.fishAcceleration * accelerationZoneScale * phaseScale) * speedScale * trophy.legendarySpeedScale,
+    fishMaxSpeed: bossCappedSpeed * speedScale * trophy.legendarySpeedScale,
+    targetMin: Math.max(fish.boss ? 0.27 : 0.18, base.targetMin / (1 + fish.zoneIndex * (fish.boss ? 0.006 : 0.012)) / phaseScale) * (1 + readingRank * 0.05) * trophy.targetDurationScale,
+    targetMax: Math.max(fish.boss ? 0.58 : 0.48, base.targetMax / (1 + fish.zoneIndex * (fish.boss ? 0.005 : 0.010)) / Math.sqrt(phaseScale)) * (1 + readingRank * 0.05) * trophy.targetDurationScale,
+    wobble: base.wobble * (1 + fish.zoneIndex * (fish.boss ? 0.010 : 0.018)) * phaseScale * trophy.wobbleScale,
+    holdLift: base.holdLift * (1 + precisionRank * 0.04) * trophy.controlScale,
+    tapImpulse: base.tapImpulse * (1 + precisionRank * 0.04) * trophy.controlScale,
+    gain: gain * (1 + trackerRank * 0.04) * trophy.hardFishGainScale,
+    loss: loss * Math.max(0.58, 1 - lineRank * 0.06),
+    suddenReduction: clamp(talentRank(profile, "oeil-exerce") * 0.15 + trophy.suddenReductionBonus, 0, 0.78),
     focusMastery: talentRank(profile, "main-du-maitre") > 0,
     prediction: talentRank(profile, "prediction-parfaite") > 0,
-    initialProgress: 0.30 + talentRank(profile, "second-souffle") * 0.05
+    initialProgress: 0.30 + talentRank(profile, "second-souffle") * 0.05,
+    focusZoneBonus: trophy.focusZoneBonus,
+    lowProgressLossScale: trophy.lowProgressLossScale,
+    pursuitAssist: trophy.pursuitAssist,
+    graceBonus: trophy.graceBonus,
+    feintScale: trophy.feintScale,
+    finishingGainScale: trophy.finishingGainScale,
+    anomalyNullifyChance: trophy.anomalyNullifyChance,
+    driftScale: trophy.driftScale,
+    bossPhaseStartBonus: trophy.bossPhaseStartBonus
   };
 }
 
@@ -580,7 +675,8 @@ function fallbackFishIllustration(fish, { locked = false, large = false } = {}) 
   </svg>`;
 }
 
-const ASSET_CACHE_VERSION = "1.3.9";
+const ASSET_CACHE_VERSION = "1.1.1";
+const UNKNOWN_FISH_PLACEHOLDER = "modules/light-fishing-minigame/assets/ui/poisson-inconnu.webp";
 
 function fishPreviewPath(src) {
   return String(src ?? "").replace("/assets/fish/", "/assets/fish-preview/");
@@ -603,9 +699,27 @@ function routedAssetPath(src) {
   return `${routed}${separator}v=${ASSET_CACHE_VERSION}`;
 }
 
+function lockedFishIllustration(fish, { large = false, mode = "preview", useFullSource = false } = {}) {
+  const full = mode === "full";
+  const classes = [
+    "hc-fish-media",
+    full ? "hc-fish-media--full" : "hc-fish-media--preview",
+    useFullSource && !full ? "is-full-source" : "",
+    large ? "is-large" : "",
+    fish?.boss ? "is-boss" : "",
+    "is-locked"
+  ].filter(Boolean).join(" ");
+  const label = escapeHtml(fish?.boss ? "Boss inconnu" : "Espèce inconnue");
+  const source = escapeHtml(routedAssetPath(UNKNOWN_FISH_PLACEHOLDER));
+  return `<div class="${classes}" role="img" aria-label="${label}">
+    <img class="hc-fish-media__img" data-lfg-fish-image="true" src="${source}" alt="${label}" decoding="async" draggable="false">
+    <span class="hc-fish-media__error" data-role="fish-image-error" hidden><i class="fas fa-image"></i><small>Illustration indisponible</small></span>
+  </div>`;
+}
+
 function fishIllustration(fish, { locked = false, large = false, mode = "preview", useFullSource = false } = {}) {
   if (!fish) return "";
-  if (locked) return fallbackFishIllustration(fish, { locked, large });
+  if (locked) return lockedFishIllustration(fish, { large, mode, useFullSource });
 
   const fullSource = POISSON_IMAGE_BY_ID.get(fish.id);
   if (!fullSource) return fallbackFishIllustration(fish, { locked: false, large });
@@ -734,6 +848,9 @@ class FishingGame {
     this.pendingConfirmResolver = null;
     this.pendingTalentSave = false;
     this.pendingAdminAction = false;
+    this.talentPanel = "trees";
+    this.selectedTrophyId = BOSS_TROPHIES[0]?.id ?? null;
+    this.currentZoneHeight = 0.24;
   }
 
   open() {
@@ -813,9 +930,19 @@ class FishingGame {
           </section>
 
           <section class="lfg-view lfg-talents-view" data-view-panel="talents" hidden>
-            <div class="lfg-section-heading lfg-talents-heading"><div><span class="lfg-kicker">Progression du pêcheur</span><h3>Arbres de talents</h3><p>Dépensez vos points de maîtrise sans réduire votre score de classement. Survolez une icône pour afficher tous ses détails.</p></div><div class="lfg-talent-wallet" data-role="talent-wallet"></div></div>
-            <div class="lfg-talents-toolbar"><span><i class="fas fa-circle-info"></i> Les talents sont permanents sur ce profil.</span><button type="button" class="lfg-secondary" data-action="talent-reset"><i class="fas fa-rotate-left"></i> Réinitialiser</button></div>
-            <div class="lfg-talents-scroll"><div class="lfg-talent-trees" data-role="talent-trees"></div></div>
+            <div class="lfg-section-heading lfg-talents-heading"><div><span class="lfg-kicker">Progression du pêcheur</span><h3>Talents & Trophées</h3><p>Développez votre technique avec la maîtrise, puis laissez les boss vaincus inscrire leurs pouvoirs dans votre Vague des Trophées.</p></div><div class="lfg-talent-wallet" data-role="talent-wallet"></div></div>
+            <div class="lfg-progression-tabs" role="tablist" aria-label="Progression"><button type="button" data-action="talent-panel" data-panel="trees"><i class="fas fa-diagram-project"></i><span>Arbres de talents</span></button><button type="button" data-action="talent-panel" data-panel="trophies"><i class="fas fa-crown"></i><span>La Vague des Trophées</span><em data-role="trophy-tab-count"></em></button></div>
+            <div data-role="talent-tree-panel">
+              <div class="lfg-talents-toolbar"><span><i class="fas fa-circle-info"></i> Les talents utilisent les points de maîtrise et peuvent être réinitialisés.</span><button type="button" class="lfg-secondary" data-action="talent-reset"><i class="fas fa-rotate-left"></i> Réinitialiser</button></div>
+              <div class="lfg-talents-scroll"><div class="lfg-talent-trees" data-role="talent-trees"></div></div>
+            </div>
+            <div class="lfg-trophy-panel" data-role="trophy-panel" hidden>
+              <div class="lfg-talents-toolbar"><span><i class="fas fa-water"></i> Chaque victoire ajoute une empreinte à la Vague. Les 18 trophées sont indépendants et ne coûtent aucun point.</span><strong data-role="trophy-progress"></strong></div>
+              <div class="lfg-trophy-wave-layout">
+                <div class="lfg-trophy-wave-board" data-role="trophy-wave"></div>
+                <aside class="lfg-trophy-detail" data-role="trophy-detail" aria-live="polite"></aside>
+              </div>
+            </div>
           </section>
 
           <section class="lfg-view lfg-leaderboard-view" data-view-panel="classement" hidden>
@@ -850,6 +977,8 @@ class FishingGame {
       else if (action === "fish-detail") this.showFishDetail(control.dataset.fishId);
       else if (action === "close-detail") this.hideFishDetail();
       else if (action === "talent-buy") this.buyTalent(control.dataset.talentId);
+      else if (action === "talent-panel") this.setTalentPanel(control.dataset.panel);
+      else if (action === "trophy-select") this.selectTrophy(control.dataset.trophyId);
       else if (action === "talent-reset") this.resetTalents();
       else if (action === "admin-refresh") this.renderAdmin();
       else if (action === "admin-points") this.adjustAdminPoints(control.dataset.mode);
@@ -888,19 +1017,19 @@ class FishingGame {
     }, { capture: true, signal });
 
     this.root.addEventListener("pointerover", (event) => {
-      const node = event.target.closest("[data-talent-id]");
+      const node = event.target.closest("[data-talent-id], [data-trophy-id]");
       if (node && !node.contains(event.relatedTarget)) this.showTalentTooltip(node);
     }, { signal });
     this.root.addEventListener("pointerout", (event) => {
-      const node = event.target.closest("[data-talent-id]");
+      const node = event.target.closest("[data-talent-id], [data-trophy-id]");
       if (node && !node.contains(event.relatedTarget)) this.hideTalentTooltip();
     }, { signal });
     this.root.addEventListener("focusin", (event) => {
-      const node = event.target.closest("[data-talent-id]");
+      const node = event.target.closest("[data-talent-id], [data-trophy-id]");
       if (node) this.showTalentTooltip(node);
     }, { signal });
     this.root.addEventListener("focusout", (event) => {
-      if (event.target.closest("[data-talent-id]")) this.hideTalentTooltip();
+      if (event.target.closest("[data-talent-id], [data-trophy-id]")) this.hideTalentTooltip();
     }, { signal });
 
     this.root.addEventListener("pointerdown", (event) => {
@@ -1137,7 +1266,7 @@ class FishingGame {
   beginFight() {
     const config = gameConfigFor(this.targetFish, this.bossPhase, this.profile);
     this.status = "playing";
-    this.progress = this.targetFish.boss ? Math.max(0.22, config.initialProgress - 0.08) : config.initialProgress;
+    this.progress = this.targetFish.boss ? Math.max(0.22, config.initialProgress - 0.08 + config.bossPhaseStartBonus) : config.initialProgress;
     const halfZone = config.zoneHeight / 2;
     const startCenter = this.targetFish.boss ? 0.50 : randomBetween(0.42, 0.58);
     this.playerY = clamp(startCenter, halfZone, 1 - halfZone);
@@ -1145,7 +1274,7 @@ class FishingGame {
     this.fishY = clamp(this.playerY + randomBetween(-config.zoneHeight * 0.12, config.zoneHeight * 0.12), 0.05, 0.95);
     this.fishVelocity = 0;
     this.fishTarget = this.fishY;
-    this.graceRemaining = this.targetFish.boss ? 2.25 : Math.max(0.95, 1.35 - this.targetFish.difficulte * 0.07);
+    this.graceRemaining = (this.targetFish.boss ? 2.25 : Math.max(0.95, 1.35 - this.targetFish.difficulte * 0.07)) + config.graceBonus;
     this.insideStreak = 0;
     this.predictionReady = config.prediction;
     this.targetTimer = this.graceRemaining + randomBetween(config.targetMin, config.targetMax);
@@ -1159,7 +1288,8 @@ class FishingGame {
     this.root.querySelector('[data-role="game-zone"]').textContent = this.targetFish.zone;
     this.root.querySelector('[data-role="encounter-title"]').textContent = this.targetFish.boss ? this.targetFish.nom : "Quelque chose a mordu !";
     this.root.querySelector('[data-role="mystery-art"]').innerHTML = fishIllustration(this.targetFish, { locked: !this.targetFish.boss, mode: this.targetFish.boss ? "full" : "preview" });
-    this.root.querySelector('[data-role="catch-zone"]').style.height = `${config.zoneHeight * 100}%`;
+    this.currentZoneHeight = config.zoneHeight;
+    this.root.querySelector('[data-role="catch-zone"]').style.height = `${this.currentZoneHeight * 100}%`;
     const scene = this.root.querySelector('[data-role="game-scene"]');
     const zone = zoneById(this.zoneId);
     scene.style.setProperty("--game-scene", `url('${this.period === "jour" ? zone.imageJour : zone.imageNuit}')`);
@@ -1263,6 +1393,20 @@ class FishingGame {
     return true;
   }
 
+
+  cancelBrutalMove(config) {
+    if (this.predictionReady) return this.consumePrediction();
+    if (config.anomalyNullifyChance > 0 && Math.random() < config.anomalyNullifyChance) {
+      const lane = this.root?.querySelector('[data-role="lane"]');
+      lane?.classList.remove("lfg-anomaly-flash");
+      if (lane) void lane.offsetWidth;
+      lane?.classList.add("lfg-anomaly-flash");
+      playTone(700, 0.08, "triangle", 0.02);
+      return true;
+    }
+    return false;
+  }
+
   tick(time) {
     if (this.status !== "playing") return;
     const dt = Math.min((time - this.lastFrame) / 1000, 0.04);
@@ -1283,19 +1427,17 @@ class FishingGame {
         const edgeBias = Math.random();
         this.fishTarget = edgeBias < 0.22 ? randomBetween(0.06, 0.22) : edgeBias > 0.78 ? randomBetween(0.78, 0.94) : randomBetween(0.14, 0.86);
         this.targetTimer = randomBetween(config.targetMin, config.targetMax);
-        const burstChance = (this.targetFish.boss ? 0.58 : this.targetFish.difficulte === 5 ? 0.46 : this.targetFish.difficulte >= 4 ? 0.30 : 0.10) * (1 - config.suddenReduction);
+        const burstChance = (this.targetFish.boss ? 0.40 : this.targetFish.difficulte === 5 ? 0.46 : this.targetFish.difficulte >= 4 ? 0.30 : 0.10) * (1 - config.suddenReduction);
         if (Math.random() < burstChance) {
-          if (this.predictionReady) this.consumePrediction();
-          else this.fishVelocity += Math.sign(this.fishTarget - this.fishY) * randomBetween(0.12, this.targetFish.boss ? 0.38 : 0.28);
+          if (!this.cancelBrutalMove(config)) this.fishVelocity += Math.sign(this.fishTarget - this.fishY) * randomBetween(0.12, this.targetFish.boss ? 0.30 : 0.28);
         }
       }
 
-      const feintChance = (this.targetFish.boss ? 0.38 : 0.10 + this.targetFish.difficulte * 0.035) * (1 - config.suddenReduction) * dt;
+      const feintChance = (this.targetFish.boss ? 0.24 : 0.10 + this.targetFish.difficulte * 0.035) * (1 - config.suddenReduction) * config.feintScale * dt;
       if (Math.random() < feintChance) {
-        if (this.predictionReady) this.consumePrediction();
-        else this.fishVelocity += randomBetween(-0.24, 0.24) * (this.targetFish.boss ? 1.35 : 0.80 + this.targetFish.difficulte * 0.12);
+        if (!this.cancelBrutalMove(config)) this.fishVelocity += randomBetween(-0.24, 0.24) * (this.targetFish.boss ? 1.10 : 0.80 + this.targetFish.difficulte * 0.12);
       }
-      const driftChance = (this.targetFish.boss ? 0.20 : 0.05 + this.targetFish.difficulte * 0.02) * dt;
+      const driftChance = (this.targetFish.boss ? 0.14 : 0.05 + this.targetFish.difficulte * 0.02) * config.driftScale * dt;
       if (Math.random() < driftChance) {
         this.fishTarget = clamp(this.fishTarget + randomBetween(-0.22, 0.22), 0.08, 0.92);
       }
@@ -1317,10 +1459,16 @@ class FishingGame {
 
     if (this.pressed) this.playerVelocity += config.holdLift * dt;
     this.playerVelocity -= config.gravity * dt;
+    const preliminaryHalfZone = config.zoneHeight / 2;
+    if (!inGrace && config.pursuitAssist > 0 && Math.abs(this.fishY - this.playerY) > preliminaryHalfZone * 0.93) {
+      this.playerVelocity += Math.sign(this.fishY - this.playerY) * config.pursuitAssist * dt;
+    }
     this.playerVelocity *= Math.pow(0.986, dt * 60);
     this.playerVelocity = clamp(this.playerVelocity, -0.78, 0.88);
     this.playerY += this.playerVelocity * dt;
-    const halfZone = config.zoneHeight / 2;
+    const focusZoneScale = config.focusZoneBonus > 0 && this.insideStreak >= 1 ? 1 + config.focusZoneBonus : 1;
+    this.currentZoneHeight = clamp(config.zoneHeight * focusZoneScale, config.zoneHeight, 0.52);
+    const halfZone = this.currentZoneHeight / 2;
     const minY = halfZone;
     const maxY = 1 - halfZone;
     if (this.playerY <= minY || this.playerY >= maxY) {
@@ -1331,8 +1479,10 @@ class FishingGame {
     this.inside = Math.abs(this.fishY - this.playerY) <= halfZone * 0.93;
     this.insideStreak = this.inside ? this.insideStreak + dt : 0;
     const focusBonus = config.focusMastery && this.insideStreak >= 1.3 ? 1.18 : 1;
-    if (this.inside) this.progress += dt * config.gain * focusBonus;
-    else if (!inGrace) this.progress -= dt * config.loss;
+    const finishingBonus = this.progress >= 0.70 ? config.finishingGainScale : 1;
+    const recoveryLossScale = this.progress < 0.30 ? config.lowProgressLossScale : 1;
+    if (this.inside) this.progress += dt * config.gain * focusBonus * finishingBonus;
+    else if (!inGrace) this.progress -= dt * config.loss * recoveryLossScale;
     this.progress = clamp(this.progress, 0, 1);
     if (this.progress >= 1) {
       if (this.targetFish.boss && this.bossPhase < 2) this.advanceBossPhase();
@@ -1342,15 +1492,16 @@ class FishingGame {
 
   advanceBossPhase() {
     this.bossPhase += 1;
-    this.progress = 0.24;
     const config = gameConfigFor(this.targetFish, this.bossPhase, this.profile);
+    this.progress = 0.24 + config.bossPhaseStartBonus;
     this.fishY = this.playerY;
     this.fishVelocity = 0;
     this.fishTarget = this.fishY;
     this.insideStreak = 0;
-    this.graceRemaining = 1.45;
+    this.graceRemaining = 1.45 + config.graceBonus;
     this.targetTimer = this.graceRemaining + randomBetween(config.targetMin, config.targetMax);
-    this.root.querySelector('[data-role="catch-zone"]').style.height = `${config.zoneHeight * 100}%`;
+    this.currentZoneHeight = config.zoneHeight;
+    this.root.querySelector('[data-role="catch-zone"]').style.height = `${this.currentZoneHeight * 100}%`;
     const lane = this.root.querySelector('[data-role="lane"]');
     lane.classList.remove("lfg-boss-phase-burst");
     void lane.offsetWidth;
@@ -1370,6 +1521,7 @@ class FishingGame {
     fish.style.bottom = `calc(${this.fishY * 100}% - 18px)`;
     fish.style.setProperty("--fish-tilt", `${clamp(-this.fishVelocity * 36, -22, 22)}deg`);
     fish.classList.toggle("is-boss", Boolean(this.targetFish?.boss));
+    zone.style.height = `${this.currentZoneHeight * 100}%`;
     zone.style.bottom = `calc(${this.playerY * 100}% - ${zone.offsetHeight / 2}px)`;
     progress.style.height = `${this.progress * 100}%`;
     lane.classList.toggle("is-catching", this.inside);
@@ -1408,6 +1560,10 @@ class FishingGame {
     if (this.root) {
       this.showResult(true, result);
       this.renderProfileSummary();
+    }
+    if (result.trophyUnlocked) {
+      const trophy = BOSS_TROPHIES_BY_ID.get(result.trophyId);
+      if (trophy) ui.notifications?.info(`Trophée débloqué : ${trophy.name} — ${trophy.effect}`);
     }
     await announceCatch(result);
     Hooks.callAll("lightFishingCaught", result);
@@ -1470,7 +1626,7 @@ class FishingGame {
       const fish = POISSONS_PAR_ID.get(result.fishId);
       const speciesRecord = this.profile.especes[result.fishId];
       title.textContent = result.boss ? "Boss capturé !" : "Poisson attrapé !";
-      body.innerHTML = `<div class="lfg-catch-showcase lfg-rarity-border-${rarityClass(result.rarity)}${result.boss ? " is-boss-catch" : ""}"><div class="lfg-catch-art">${fishIllustration(fish, { large: true, mode: "full" })}</div><div class="lfg-catch-info"><div class="lfg-catch-heading"><div class="lfg-catch-name">${escapeHtml(result.name)}</div><span class="lfg-catch-status ${result.isNew ? "is-new" : "is-known"}" title="${result.isNew ? "Nouvelle espèce ajoutée au catalogue" : "Espèce déjà pêchée"}"><i class="fas ${result.isNew ? "fa-star" : "fa-check"}"></i>${result.isNew ? "Nouveauté" : "Déjà pêché"}</span></div>${result.miracle ? `<div class="lfg-miracle-banner"><i class="fas fa-star"></i> Pêche miraculeuse : récompenses doublées !</div>` : ""}<div class="lfg-catch-tags">${rarityBadge(result.rarity)}${periodBadge(result.period)}<span><i class="fas fa-map-location-dot"></i>${escapeHtml(result.zone)}</span></div>${difficultyStars(result.difficulty)}<p>${escapeHtml(fish.description)}</p><div class="lfg-result-stats"><span><i class="fas fa-weight-hanging"></i>Poids<strong>${result.weight.toFixed(2)} kg</strong></span><span><i class="fas fa-trophy"></i>Score<strong>+${result.score}</strong></span><span><i class="fas fa-wand-magic-sparkles"></i>Maîtrise<strong>+${result.masteryGain}</strong></span><span><i class="fas fa-ruler-vertical"></i>Record de l’espèce<strong>${speciesRecord.record.toFixed(2)} kg</strong></span></div></div></div>`;
+      body.innerHTML = `<div class="lfg-catch-showcase lfg-rarity-border-${rarityClass(result.rarity)}${result.boss ? " is-boss-catch" : ""}"><div class="lfg-catch-art">${fishIllustration(fish, { large: true, mode: "full" })}</div><div class="lfg-catch-info"><div class="lfg-catch-heading"><div class="lfg-catch-name">${escapeHtml(result.name)}</div><span class="lfg-catch-status ${result.isNew ? "is-new" : "is-known"}" title="${result.isNew ? "Nouvelle espèce ajoutée au catalogue" : "Espèce déjà pêchée"}"><i class="fas ${result.isNew ? "fa-star" : "fa-check"}"></i>${result.isNew ? "Nouveauté" : "Déjà pêché"}</span></div>${result.miracle ? `<div class="lfg-miracle-banner"><i class="fas fa-star"></i> Pêche miraculeuse : récompenses doublées !</div>` : ""}${result.trophyUnlocked && BOSS_TROPHIES_BY_ID.get(result.trophyId) ? (() => { const trophy = BOSS_TROPHIES_BY_ID.get(result.trophyId); return `<div class="lfg-trophy-unlock-banner"><i class="fas ${trophy.icon}"></i><div><small>Nouveau trophée débloqué</small><strong>${escapeHtml(trophy.name)}</strong><span>${escapeHtml(trophy.effect)}</span></div></div>`; })() : ""}<div class="lfg-catch-tags">${rarityBadge(result.rarity)}${periodBadge(result.period)}<span><i class="fas fa-map-location-dot"></i>${escapeHtml(result.zone)}</span></div>${difficultyStars(result.difficulty)}<p>${escapeHtml(fish.description)}</p><div class="lfg-result-stats"><span><i class="fas fa-weight-hanging"></i>Poids<strong>${result.weight.toFixed(2)} kg</strong></span><span><i class="fas fa-trophy"></i>Score<strong>+${result.score}</strong></span><span><i class="fas fa-wand-magic-sparkles"></i>Maîtrise<strong>+${result.masteryGain}</strong></span><span><i class="fas fa-ruler-vertical"></i>Record de l’espèce<strong>${speciesRecord.record.toFixed(2)} kg</strong></span></div></div></div>`;
       this.spawnConfetti(result.boss ? 70 : 28, result.boss);
     } else {
       title.textContent = this.targetFish?.boss ? "Le boss s’est échappé…" : "Le poisson s’est échappé…";
@@ -1534,13 +1690,41 @@ class FishingGame {
     if (detail) detail.hidden = true;
   }
 
+  selectTrophy(trophyId) {
+    if (!BOSS_TROPHIES_BY_ID.has(trophyId)) return;
+    this.selectedTrophyId = trophyId;
+    this.hideTalentTooltip();
+    this.renderTalents();
+  }
+
+  setTalentPanel(panel) {
+    this.talentPanel = panel === "trophies" ? "trophies" : "trees";
+    this.hideTalentTooltip();
+    this.renderTalents();
+  }
+
   renderTalents() {
     const target = this.root?.querySelector('[data-role="talent-trees"]');
+    const trophyTarget = this.root?.querySelector('[data-role="trophy-wave"]');
     const wallet = this.root?.querySelector('[data-role="talent-wallet"]');
-    if (!target || !wallet) return;
+    const treePanel = this.root?.querySelector('[data-role="talent-tree-panel"]');
+    const trophyPanel = this.root?.querySelector('[data-role="trophy-panel"]');
+    if (!target || !trophyTarget || !wallet || !treePanel || !trophyPanel) return;
+
     const available = masteryAvailable(this.profile);
     const spent = masterySpent(this.profile);
-    wallet.innerHTML = `<span title="Points de maîtrise disponibles"><i class="fas fa-wand-magic-sparkles"></i><strong>${available}</strong><small>disponibles</small></span><span title="Points investis"><i class="fas fa-gem"></i><strong>${spent}</strong><small>investis</small></span>`;
+    const unlockedTrophies = trophyCount(this.profile);
+    wallet.innerHTML = `<span title="Points de maîtrise disponibles"><i class="fas fa-wand-magic-sparkles"></i><strong>${available}</strong><small>disponibles</small></span><span title="Points investis"><i class="fas fa-gem"></i><strong>${spent}</strong><small>investis</small></span><span title="Pouvoirs de boss débloqués"><i class="fas fa-crown"></i><strong>${unlockedTrophies}/${BOSS_TROPHIES.length}</strong><small>trophées</small></span>`;
+
+    this.root.querySelectorAll('[data-action="talent-panel"]').forEach((button) => {
+      button.classList.toggle("is-active", button.dataset.panel === this.talentPanel);
+      button.setAttribute("aria-selected", button.dataset.panel === this.talentPanel ? "true" : "false");
+    });
+    const tabCount = this.root.querySelector('[data-role="trophy-tab-count"]');
+    if (tabCount) tabCount.textContent = `${unlockedTrophies}/${BOSS_TROPHIES.length}`;
+    treePanel.hidden = this.talentPanel !== "trees";
+    trophyPanel.hidden = this.talentPanel !== "trophies";
+
     target.innerHTML = TALENT_TREES.map((tree) => {
       const invested = branchRanks(this.profile, tree.id);
       const nodes = tree.talents.map((talent) => {
@@ -1556,6 +1740,31 @@ class FishingGame {
       }).join("");
       return `<section class="lfg-talent-tree is-${tree.accent}"><header><span><i class="fas ${tree.icon}"></i></span><div><h4>${escapeHtml(tree.name)}</h4><p>${escapeHtml(tree.summary)}</p></div><strong>${invested}<small>rangs</small></strong></header><div class="lfg-talent-branch"><div class="lfg-talent-lines" aria-hidden="true"></div>${nodes}</div></section>`;
     }).join("");
+
+    const trophyProgress = this.root.querySelector('[data-role="trophy-progress"]');
+    if (trophyProgress) trophyProgress.innerHTML = `<i class="fas fa-water"></i> ${unlockedTrophies}/${BOSS_TROPHIES.length} empreintes acquises`;
+
+    if (!BOSS_TROPHIES_BY_ID.has(this.selectedTrophyId)) this.selectedTrophyId = BOSS_TROPHIES[0]?.id ?? null;
+    const selectedTrophy = BOSS_TROPHIES_BY_ID.get(this.selectedTrophyId) ?? BOSS_TROPHIES[0];
+    const waveOffsets = [0, -8, -14, -8, 0, 8, 14, 8, 0];
+    const rows = [BOSS_TROPHIES.slice(0, 9), BOSS_TROPHIES.slice(9, 18)];
+    trophyTarget.innerHTML = `<div class="lfg-wave-summary"><span><i class="fas fa-crown"></i><strong>${unlockedTrophies}</strong><small>/ ${BOSS_TROPHIES.length}</small></span><div><strong>La Vague des Trophées</strong><small>Chaque médaillon est indépendant</small></div></div>${rows.map((row, rowIndex) => `<div class="lfg-trophy-wave-row is-row-${rowIndex + 1}"><svg class="lfg-trophy-wave-line" viewBox="0 0 900 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0,40 C100,5 200,5 300,40 S500,75 600,40 S800,5 900,40"/></svg><div class="lfg-trophy-wave-nodes">${row.map((trophy, index) => {
+      const unlocked = hasBossTrophy(this.profile, trophy.id);
+      const selected = trophy.id === this.selectedTrophyId;
+      const zone = zoneById(trophy.zoneId);
+      const offset = waveOffsets[index] * (rowIndex === 1 ? -1 : 1);
+      return `<button type="button" class="lfg-trophy-node ${unlocked ? "is-unlocked" : "is-locked"}${selected ? " is-selected" : ""}" data-action="trophy-select" data-trophy-id="${trophy.id}" style="--wave-y:${offset}px" aria-pressed="${selected ? "true" : "false"}" aria-label="${escapeHtml(unlocked ? trophy.name : `Trophée verrouillé — ${zone.name}`)}"><span><i class="fas ${unlocked ? trophy.icon : "fa-lock"}"></i></span><small>${escapeHtml(zone.name)}</small>${unlocked ? '<b class="fas fa-check"></b>' : ""}</button>`;
+    }).join("")}</div></div>`).join("")}`;
+
+    const trophyDetail = this.root.querySelector('[data-role="trophy-detail"]');
+    if (trophyDetail && selectedTrophy) {
+      const unlocked = hasBossTrophy(this.profile, selectedTrophy.id);
+      const boss = BOSS_PAR_ZONE.get(selectedTrophy.zoneId);
+      const zone = zoneById(selectedTrophy.zoneId);
+      trophyDetail.innerHTML = unlocked
+        ? `<div class="lfg-trophy-detail-head"><span><i class="fas ${selectedTrophy.icon}"></i></span><div><small>${escapeHtml(zone.name)}</small><h4>${escapeHtml(selectedTrophy.name)}</h4></div><em><i class="fas fa-check"></i> Acquis</em></div><p>${escapeHtml(selectedTrophy.lore)}</p><div class="lfg-trophy-detail-effect"><small>Pouvoir permanent</small><strong>${escapeHtml(selectedTrophy.effect)}</strong></div><div class="lfg-trophy-detail-boss"><i class="fas fa-crown"></i><span>Hérité de <strong>${escapeHtml(boss?.nom ?? zone.name)}</strong></span></div>`
+        : `<div class="lfg-trophy-detail-head is-locked"><span><i class="fas fa-lock"></i></span><div><small>${escapeHtml(zone.name)}</small><h4>Trophée inconnu</h4></div><em>Verrouillé</em></div><p>Terrassez <strong>${escapeHtml(boss?.nom ?? "le boss de cette zone")}</strong> pour révéler son pouvoir. Aucun autre trophée n’est requis.</p><div class="lfg-trophy-detail-effect is-locked"><small>Condition</small><strong>Vaincre le boss de cette zone</strong></div><div class="lfg-trophy-detail-boss"><i class="fas fa-water"></i><span>Cette empreinte peut être obtenue indépendamment des 17 autres.</span></div>`;
+    }
   }
 
   talentTooltipContent(talent) {
@@ -1571,11 +1780,22 @@ class FishingGame {
     return `<div class="lfg-tooltip-head"><span><i class="fas ${talent.icon}"></i></span><div><strong>${escapeHtml(talent.name)}</strong><small>${escapeHtml(talent.treeName)}</small></div><em>${rank}/${talent.maxRank}</em></div><p>${escapeHtml(talent.description)}</p><div class="lfg-tooltip-effect"><span>Effet actuel</span><strong>${rank ? escapeHtml(talent.effect(rank)) : "Non appris"}</strong></div>${!maxed ? `<div class="lfg-tooltip-effect is-next"><span>Rang suivant</span><strong>${escapeHtml(talent.effect(nextRank))}</strong></div>` : ""}${requirementText ? `<div class="lfg-tooltip-lock"><i class="fas fa-lock"></i>${escapeHtml(requirementText)}</div>` : !maxed ? `<div class="lfg-tooltip-cost"><i class="fas fa-wand-magic-sparkles"></i><strong>${cost}</strong> points de maîtrise</div>` : `<div class="lfg-tooltip-max"><i class="fas fa-crown"></i>Talent au rang maximal</div>`}`;
   }
 
+  trophyTooltipContent(trophy) {
+    const unlocked = hasBossTrophy(this.profile, trophy.id);
+    const boss = BOSS_PAR_ZONE.get(trophy.zoneId);
+    const zone = zoneById(trophy.zoneId);
+    if (!unlocked) {
+      return `<div class="lfg-tooltip-head"><span><i class="fas fa-lock"></i></span><div><strong>Trophée inconnu</strong><small>${escapeHtml(zone.name)}</small></div><em>Verrouillé</em></div><p>Terrassez <strong>${escapeHtml(boss?.nom ?? "le boss de cette zone")}</strong> pour révéler ce pouvoir. Aucun autre trophée n’est requis.</p><div class="lfg-tooltip-lock"><i class="fas fa-crown"></i>Victoire contre ce boss requise</div>`;
+    }
+    return `<div class="lfg-tooltip-head is-trophy"><span><i class="fas ${trophy.icon}"></i></span><div><strong>${escapeHtml(trophy.name)}</strong><small>${escapeHtml(boss?.nom ?? zone.name)}</small></div><em>Acquis</em></div><p>${escapeHtml(trophy.lore)}</p><div class="lfg-tooltip-effect is-trophy"><span>Pouvoir permanent</span><strong>${escapeHtml(trophy.effect)}</strong></div><div class="lfg-tooltip-max"><i class="fas fa-crown"></i>Actif automatiquement sur ce profil</div>`;
+  }
+
   showTalentTooltip(node) {
     const talent = TALENTS_BY_ID.get(node?.dataset?.talentId);
+    const trophy = BOSS_TROPHIES_BY_ID.get(node?.dataset?.trophyId);
     const tooltip = this.root?.querySelector('[data-role="talent-tooltip"]');
-    if (!talent || !tooltip) return;
-    tooltip.innerHTML = this.talentTooltipContent(talent);
+    if ((!talent && !trophy) || !tooltip) return;
+    tooltip.innerHTML = trophy ? this.trophyTooltipContent(trophy) : this.talentTooltipContent(talent);
     tooltip.hidden = false;
     tooltip.style.left = "0px";
     tooltip.style.top = "0px";
@@ -2069,6 +2289,12 @@ Hooks.once("ready", () => {
       close: () => activeGame?.close(),
       openCatalogue: () => openFishingGame({ view: "catalogue" }),
       openTalents: () => openFishingGame({ view: "talents" }),
+      openTrophies: () => {
+        const instance = openFishingGame({ view: "talents" });
+        instance.talentPanel = "trophies";
+        instance.renderTalents();
+        return instance;
+      },
       openLeaderboard: () => openFishingGame({ view: "classement" }),
       getLastCatch: () => lastCatch ? { ...lastCatch } : null,
       getProfile: () => clone(getProfile()),
@@ -2084,6 +2310,16 @@ Hooks.once("ready", () => {
             talents: tree.talents.map((talent) => ({ id: talent.id, name: talent.name, rank: talentRank(profile, talent.id), maxRank: talent.maxRank }))
           }))
         };
+      },
+      getTrophies: () => {
+        const profile = getProfile();
+        return BOSS_TROPHIES.map((trophy) => ({
+          id: trophy.id,
+          zoneId: trophy.zoneId,
+          name: trophy.name,
+          effect: trophy.effect,
+          unlocked: hasBossTrophy(profile, trophy.id)
+        }));
       },
       getZoneProgress: (zoneId) => clone(zoneProgress(getProfile(), zoneId)),
       resetProfile: async (userId = game.user.id) => {

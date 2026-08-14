@@ -4272,3 +4272,327 @@
   object-fit: contain !important;
   object-position: center !important;
 }
+
+
+/* ------------------------------------------------------------------------- */
+/* Hameçons & Couronnes 1.0.2 — placeholder illustré pour espèces inconnues  */
+/* ------------------------------------------------------------------------- */
+
+.hc-fish-media.is-locked .hc-fish-media__img {
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .28));
+}
+
+
+/* ------------------------------------------------------------------------- */
+/* Hameçons & Couronnes 1.1.1 — La Vague des Trophées                       */
+/* ------------------------------------------------------------------------- */
+
+.lfg-progression-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  background: rgba(0,0,0,.16);
+}
+
+.lfg-progression-tabs button {
+  position: relative;
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: rgba(255,244,208,.60);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+.lfg-progression-tabs button:hover { color: #fff3ce; background: rgba(255,255,255,.04); }
+.lfg-progression-tabs button.is-active {
+  color: #fff2bf;
+  border-color: rgba(246,203,106,.38);
+  background: linear-gradient(135deg, rgba(246,203,106,.14), rgba(113,230,218,.07));
+  box-shadow: inset 0 0 18px rgba(246,203,106,.05);
+}
+.lfg-progression-tabs button.is-active i { color: var(--lfg-gold); }
+.lfg-progression-tabs em {
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: #17222a;
+  background: var(--lfg-gold);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.lfg-talent-wallet { grid-template-columns: repeat(3, minmax(110px, 1fr)); }
+.lfg-trophy-panel[hidden], [data-role="talent-tree-panel"][hidden] { display: none !important; }
+.lfg-trophy-panel { min-height: 0; overflow: hidden; }
+.lfg-trophy-panel .lfg-talents-toolbar { margin-bottom: 8px; }
+.lfg-trophy-panel .lfg-talents-toolbar > strong { color: var(--lfg-gold); font-size: 12px; }
+.lfg-trophy-panel .lfg-talents-toolbar > strong i { margin-right: 5px; }
+
+.lfg-trophy-wave-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, .72fr);
+  gap: 12px;
+  min-height: 0;
+  height: min(390px, calc(94vh - 330px));
+  max-height: 390px;
+}
+
+.lfg-trophy-wave-board {
+  position: relative;
+  display: grid;
+  grid-template-rows: 48px repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px 10px 10px;
+  border: 1px solid rgba(113,230,218,.14);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(113,230,218,.035), rgba(0,0,0,.08)),
+    radial-gradient(ellipse at 50% 115%, rgba(113,230,218,.12), transparent 58%);
+  box-shadow: inset 0 0 45px rgba(0,0,0,.16);
+}
+
+.lfg-wave-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 4px 7px 7px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.lfg-wave-summary > span {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  color: #fff0b4;
+}
+.lfg-wave-summary > span i { margin-right: 4px; color: var(--lfg-gold); }
+.lfg-wave-summary > span strong { font-size: 21px; line-height: 1; }
+.lfg-wave-summary > span small { color: rgba(255,244,208,.50); font-size: 9px; }
+.lfg-wave-summary > div { display: grid; min-width: 0; gap: 1px; }
+.lfg-wave-summary > div strong { color: #fff0c5; font-size: 12px; }
+.lfg-wave-summary > div small { color: rgba(255,244,208,.47); font-size: 9px; }
+
+.lfg-trophy-wave-row {
+  position: relative;
+  min-height: 0;
+  overflow: visible;
+}
+.lfg-trophy-wave-line {
+  position: absolute;
+  z-index: 0;
+  left: 1%;
+  top: 50%;
+  width: 98%;
+  height: 62%;
+  transform: translateY(-50%);
+  overflow: visible;
+  pointer-events: none;
+}
+.lfg-trophy-wave-line path {
+  fill: none;
+  stroke: rgba(113,230,218,.24);
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px rgba(113,230,218,.12));
+}
+.lfg-trophy-wave-row.is-row-2 .lfg-trophy-wave-line { transform: translateY(-50%) scaleY(-1); }
+
+.lfg-trophy-wave-nodes {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  height: 100%;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.lfg-trophy-node {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 76px;
+  place-items: center;
+  align-content: center;
+  gap: 3px;
+  padding: 3px 1px;
+  transform: translateY(var(--wave-y, 0));
+  border: 0;
+  color: rgba(255,244,208,.46);
+  background: transparent;
+  overflow: visible;
+  cursor: pointer;
+  transition: transform 150ms ease, opacity 150ms ease;
+}
+.lfg-trophy-node > span {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 2px solid rgba(255,255,255,.15);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 25%, rgba(255,255,255,.09), rgba(4,16,24,.92));
+  box-shadow: 0 6px 14px rgba(0,0,0,.32), inset 0 0 12px rgba(0,0,0,.35);
+  font-size: 15px;
+  transition: transform 150ms ease, filter 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+.lfg-trophy-node small {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  color: rgba(255,244,208,.52);
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lfg-trophy-node > b {
+  position: absolute;
+  right: calc(50% - 27px);
+  top: calc(50% - 34px);
+  display: grid;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  color: #183224;
+  background: #8ee6b6;
+  font-size: 7px;
+}
+.lfg-trophy-node.is-locked { opacity: .43; filter: grayscale(.72); }
+.lfg-trophy-node.is-unlocked { color: #ffe69a; }
+.lfg-trophy-node.is-unlocked > span {
+  border-color: rgba(246,203,106,.72);
+  background: radial-gradient(circle at 34% 24%, rgba(255,241,168,.26), rgba(62,38,10,.55) 70%);
+  box-shadow: 0 0 18px rgba(246,203,106,.18), 0 6px 14px rgba(0,0,0,.34), inset 0 0 14px rgba(246,203,106,.08);
+}
+.lfg-trophy-node.is-unlocked small { color: rgba(255,235,174,.76); }
+.lfg-trophy-node:hover > span, .lfg-trophy-node:focus-visible > span { transform: scale(1.08); filter: brightness(1.16); }
+.lfg-trophy-node.is-selected { opacity: 1; filter: none; }
+.lfg-trophy-node.is-selected > span {
+  border-color: #ffe189;
+  box-shadow: 0 0 0 3px rgba(246,203,106,.10), 0 0 30px rgba(246,203,106,.35), 0 7px 16px rgba(0,0,0,.35);
+  transform: scale(1.08);
+}
+
+.lfg-trophy-detail {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  align-content: start;
+  gap: 10px;
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid rgba(246,203,106,.18);
+  border-radius: 16px;
+  background: linear-gradient(155deg, rgba(246,203,106,.055), rgba(6,24,34,.72) 52%, rgba(113,230,218,.04));
+  box-shadow: inset 0 0 32px rgba(0,0,0,.16);
+}
+.lfg-trophy-detail-head { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; align-items: center; gap: 9px; }
+.lfg-trophy-detail-head > span {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(246,203,106,.48);
+  border-radius: 50%;
+  color: var(--lfg-gold);
+  background: rgba(246,203,106,.09);
+  font-size: 17px;
+}
+.lfg-trophy-detail-head > div { min-width: 0; }
+.lfg-trophy-detail-head small { color: rgba(113,230,218,.70); font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+.lfg-trophy-detail-head h4 { margin: 2px 0 0; color: #fff1c1; font-size: 15px; line-height: 1.15; }
+.lfg-trophy-detail-head em { padding: 4px 6px; border-radius: 999px; color: #173323; background: #8ee6b6; font-size: 8px; font-style: normal; font-weight: 900; white-space: nowrap; }
+.lfg-trophy-detail-head.is-locked { opacity: .72; }
+.lfg-trophy-detail-head.is-locked > span { border-color: rgba(255,255,255,.17); color: rgba(255,244,208,.46); background: rgba(255,255,255,.03); }
+.lfg-trophy-detail-head.is-locked em { color: rgba(255,244,208,.62); background: rgba(255,255,255,.07); }
+.lfg-trophy-detail > p { margin: 0; color: rgba(255,244,208,.70); font-size: 10px; line-height: 1.45; }
+.lfg-trophy-detail-effect { display: grid; gap: 4px; padding: 10px; border: 1px solid rgba(246,203,106,.24); border-radius: 11px; background: rgba(246,203,106,.06); }
+.lfg-trophy-detail-effect small { color: rgba(246,203,106,.76); font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.lfg-trophy-detail-effect strong { color: #fff1c4; font-size: 11px; line-height: 1.35; }
+.lfg-trophy-detail-effect.is-locked { border-color: rgba(255,255,255,.10); background: rgba(255,255,255,.025); }
+.lfg-trophy-detail-boss { display: flex; align-items: flex-start; gap: 8px; padding-top: 2px; color: rgba(255,244,208,.52); font-size: 9px; line-height: 1.35; }
+.lfg-trophy-detail-boss i { margin-top: 2px; color: var(--lfg-gold); }
+.lfg-trophy-detail-boss strong { color: rgba(255,244,208,.80); }
+
+.lfg-tooltip-head.is-trophy > span { color: var(--lfg-gold); border-color: rgba(246,203,106,.38); background: rgba(246,203,106,.08); }
+.lfg-tooltip-effect.is-trophy { border-color: rgba(246,203,106,.22); background: rgba(246,203,106,.055); }
+.lfg-tooltip-effect.is-trophy span { color: rgba(246,203,106,.85); }
+
+.lfg-trophy-unlock-banner {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  gap: 10px;
+  margin: 7px 0 9px;
+  padding: 10px 12px;
+  border: 1px solid rgba(246,203,106,.62);
+  border-radius: 13px;
+  color: #fff1bb;
+  background: linear-gradient(135deg, rgba(246,203,106,.17), rgba(113,230,218,.06));
+  box-shadow: 0 0 26px rgba(246,203,106,.10);
+  animation: lfg-trophy-unlock 650ms cubic-bezier(.2,.8,.2,1) both;
+}
+.lfg-trophy-unlock-banner > i {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(246,203,106,.50);
+  border-radius: 50%;
+  color: var(--lfg-gold);
+  background: rgba(246,203,106,.10);
+  font-size: 18px;
+}
+.lfg-trophy-unlock-banner div { display: grid; gap: 2px; }
+.lfg-trophy-unlock-banner small { color: rgba(246,203,106,.76); font-size: 8px; font-weight: 900; text-transform: uppercase; letter-spacing: .10em; }
+.lfg-trophy-unlock-banner strong { color: #fff1bc; font-size: 14px; }
+.lfg-trophy-unlock-banner span { color: rgba(255,244,208,.72); font-size: 10px; line-height: 1.35; }
+@keyframes lfg-trophy-unlock { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.lfg-anomaly-flash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid rgba(123,245,214,.75);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: lfg-anomaly-pulse 420ms ease-out both;
+}
+@keyframes lfg-anomaly-pulse { from { opacity: 1; box-shadow: inset 0 0 34px rgba(123,245,214,.33); } to { opacity: 0; box-shadow: inset 0 0 0 rgba(123,245,214,0); } }
+
+@media (max-width: 900px) {
+  .lfg-trophy-wave-layout { grid-template-columns: minmax(0, 1fr) 230px; }
+  .lfg-trophy-node > span { width: 40px; height: 40px; }
+  .lfg-trophy-node small { font-size: 6.5px; }
+}
+
+@media (max-width: 720px) {
+  .lfg-progression-tabs { grid-template-columns: 1fr; }
+  .lfg-talent-wallet { grid-template-columns: 1fr; }
+  .lfg-trophy-panel { overflow: auto; }
+  .lfg-trophy-wave-layout { grid-template-columns: 1fr; height: auto; max-height: none; }
+  .lfg-trophy-wave-board { min-height: 300px; }
+  .lfg-trophy-detail { min-height: 180px; overflow: visible; }
+}
