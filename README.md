@@ -29,25 +29,33 @@ Lorsqu'un boss est vaincu pour la première fois, son pouvoir permanent est déb
 
 L'interface 1.1.1 remplace le sphérier circulaire par **deux vagues de neuf trophées**, accompagnées d'un panneau de détail lisible.
 
-## Installation par manifeste
+## 📦 Installation
 
-Dans Foundry VTT, ouvrez **Add-on Modules** puis **Install Module** et utilisez :
+### Méthode recommandée — depuis Foundry VTT
+
+Dans **Modules complémentaires**, choisissez **Installer un module**, puis collez cette adresse dans le champ **URL du manifeste** :
 
 ```text
-https://raw.githubusercontent.com/Saurusius/hamecons-et-couronnes/main/module.json
+https://github.com/Saurusius/hamecons-et-couronnes/releases/latest/download/module.json
 ```
 
-Foundry utilisera ensuite automatiquement le ZIP correspondant à la version indiquée dans le manifeste.
+Foundry téléchargera automatiquement le ZIP correspondant à la dernière version stable publiée. Cette méthode permet également à Foundry de **détecter les futures mises à jour du module**.
 
-## Installation manuelle
+### Installation manuelle
 
-Téléchargez le ZIP de la release **v1.1.1** sur GitHub et extrayez son contenu dans :
+La dernière release est toujours disponible ici :
+
+```text
+https://github.com/Saurusius/hamecons-et-couronnes/releases/latest
+```
+
+Téléchargez le fichier `hamecons-et-couronnes-vX.Y.Z.zip`, puis extrayez son contenu dans :
 
 ```text
 FoundryVTT/Data/modules/light-fishing-minigame/
 ```
 
-Le fichier `module.json` doit se trouver directement dans ce dossier.
+Le fichier `module.json` doit se trouver directement dans ce dossier. Relancez ensuite Foundry VTT et activez **Hameçons & Couronnes** dans votre monde.
 
 ## Macros et API
 
@@ -97,7 +105,7 @@ Le bouton d’ouverture peut être déplacé par glisser-déposer. Sa position e
 
 ## Releases
 
-Chaque version publique possède une release GitHub avec son ZIP installable et son manifeste. Le manifeste stable de `main` pointe vers le ZIP de la version courante.
+Chaque version publique possède une release GitHub contenant son ZIP installable et son `module.json`. Le manifeste stable `releases/latest/download/module.json` pointe toujours vers la dernière release publiée et permet les mises à jour automatiques dans Foundry.
 
 Les notes détaillées sont disponibles dans les fichiers `RELEASE_NOTES_*.md` et sur la page **Releases** du dépôt.
 
