@@ -13,6 +13,8 @@ import {
 
 const MODULE_ID = "light-fishing-minigame";
 const PROFILE_FLAG = "profilPeche";
+const PROFILE_SCHEMA_VERSION = 6;
+const profileWriteQueues = new Map();
 const VALID_FISH_IDS = new Set(POISSONS.map((fish) => fish.id));
 
 const PROFILS_DIFFICULTE = Object.freeze({
@@ -236,7 +238,7 @@ function rarityBadge(rarity) {
 
 function defaultProfile() {
   return {
-    version: 6,
+    version: PROFILE_SCHEMA_VERSION,
     totalPrises: 0,
     poidsTotal: 0,
     score: 0,
@@ -354,13 +356,13 @@ function normalizeProfile(raw) {
   profile.bossesCaptures = Math.max(capturedBosses, Math.floor(Number(source.bossesCaptures) || 0));
   profile.currentStreak = Math.max(0, Math.floor(Number(source.currentStreak) || 0));
   profile.bestStreak = Math.max(profile.currentStreak, Math.floor(Number(source.bestStreak) || 0));
-  // Migration 1.2.x : le score historique reste au classement et devient aussi
+  // Migration du schéma v6 : le score historique reste au classement et devient aussi
   // le capital initial de maîtrise. Aucun point déjà gagné n’est perdu.
   profile.masteryEarned = Math.max(0, Math.floor(Number(source.masteryEarned ?? profile.score) || 0), masterySpent(profile));
   profile.plusGrosse = normalizeStoredCatch(source.plusGrosse);
   profile.meilleurePrise = normalizeStoredCatch(source.meilleurePrise);
   profile.dernierePrise = normalizeStoredCatch(source.dernierePrise);
-  profile.version = 6;
+  profile.version = PROFILE_SCHEMA_VERSION;
   return profile;
 }
 
@@ -369,11 +371,20 @@ function getProfile(user = game.user) {
   return normalizeProfile(user.getFlag(MODULE_ID, PROFILE_FLAG));
 }
 
-async function saveProfile(user, profile) {
+async function saveProfile(user, profileOrUpdater) {
   if (!user) throw new Error("Profil utilisateur introuvable.");
-  const normalized = normalizeProfile(profile);
-  await user.setFlag(MODULE_ID, PROFILE_FLAG, normalized);
-  return normalized;
+  const userId = user.id ?? "unknown";
+  const previous = profileWriteQueues.get(userId) ?? Promise.resolve();
+  const operation = previous.catch(() => undefined).then(async () => {
+    const current = normalizeProfile(user.getFlag(MODULE_ID, PROFILE_FLAG));
+    const candidate = typeof profileOrUpdater === "function" ? await profileOrUpdater(clone(current)) : profileOrUpdater;
+    const normalized = normalizeProfile(candidate);
+    await user.setFlag(MODULE_ID, PROFILE_FLAG, normalized);
+    return normalized;
+  });
+  profileWriteQueues.set(userId, operation);
+  try { return await operation; }
+  finally { if (profileWriteQueues.get(userId) === operation) profileWriteQueues.delete(userId); }
 }
 
 async function resetProfile(user) {
@@ -474,7 +485,7 @@ function catchScore(fish, weight) {
 }
 
 async function recordCatch(result) {
-  const profile = normalizeProfile(getProfile());
+  return saveProfile(game.user, (profile) => {
   const previousSpecies = profile.especes[result.fishId];
   result.isNew = !previousSpecies;
   const unlockedTrophy = result.boss ? trophyForFish(POISSONS_PAR_ID.get(result.fishId)) : null;
@@ -496,12 +507,13 @@ async function recordCatch(result) {
   if (result.rarity === "Légendaire") profile.capturesLegendaires += 1;
   if (result.boss && species.nombre === 1) profile.bossesCaptures += 1;
   profile.dernierePrise = { ...result };
-  profile.version = 6;
+  profile.version = PROFILE_SCHEMA_VERSION;
 
   if (!profile.plusGrosse || result.weight > profile.plusGrosse.weight) profile.plusGrosse = { ...result };
   if (!profile.meilleurePrise || result.score > profile.meilleurePrise.score) profile.meilleurePrise = { ...result };
 
-  return saveProfile(game.user, profile);
+  return profile;
+  });
 }
 
 function weightedFish(zoneId, period, profile) {
@@ -675,7 +687,7 @@ function fallbackFishIllustration(fish, { locked = false, large = false } = {}) 
   </svg>`;
 }
 
-const ASSET_CACHE_VERSION = "1.1.1";
+const ASSET_CACHE_VERSION = "1.1.2-dev";
 const UNKNOWN_FISH_PLACEHOLDER = "modules/light-fishing-minigame/assets/ui/poisson-inconnu.webp";
 
 function fishPreviewPath(src) {
