@@ -1,0 +1,83 @@
+name: Dev checks
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Hameçons & Couronnes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit messages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git fetch origin "${{ github.base_ref }}"
+            RANGE="origin/${{ github.base_ref }}..HEAD"
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          else
+            RANGE="HEAD~1..HEAD"
+          fi
+
+          pattern='^(feat|fix|data|ui|docs|ci|refactor|chore|release)(\([a-zA-Z0-9._-]+\))?: .+'
+
+          failed=0
+          while IFS= read -r subject; do
+            [[ -z "$subject" ]] && continue
+            [[ "$subject" =~ ^Merge[[:space:]] ]] && continue
+
+            if [[ ! "$subject" =~ $pattern ]]; then
+              echo "::error::Commit non conforme: $subject"
+              failed=1
+            fi
+          done < <(git log --format='%s' "$RANGE")
+
+          if [[ "$failed" -ne 0 ]]; then
+            echo "Format attendu : type: description ou type(scope): description"
+            exit 1
+          fi
+
+      - name: Validate manifest
+        run: node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('module.json','utf8')); if(!m.id||!m.version) throw new Error('module.json invalide'); console.log(m.id, m.version);"
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check scripts/main.js
+          node --check scripts/fish-data.js
+
+      - name: Validate game data
+        run: |
+          node --input-type=module <<'NODE'
+          import { ZONES, POISSONS, BOSS_PAR_ZONE } from './scripts/fish-data.js';
+          const ids = new Set(POISSONS.map(f => f.id));
+          if (ZONES.length !== 18) throw new Error(`18 zones attendues, reçu: ${ZONES.length}`);
+          if (POISSONS.length !== 144) throw new Error(`144 poissons attendus, reçu: ${POISSONS.length}`);
+          if (ids.size !== POISSONS.length) throw new Error('IDs de poissons dupliqués');
+          for (const fish of POISSONS) {
+            if (!fish.id || !fish.zoneId) throw new Error('Poisson incomplet');
+            if (!(Number(fish.min) < Number(fish.max))) throw new Error(`Poids invalides: ${fish.id}`);
+          }
+          for (const zone of ZONES) if (!BOSS_PAR_ZONE.get(zone.id)) throw new Error(`Boss manquant: ${zone.id}`);
+          console.log('Données validées.');
+          NODE
