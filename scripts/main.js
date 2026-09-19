@@ -687,7 +687,7 @@ function fallbackFishIllustration(fish, { locked = false, large = false } = {}) 
   </svg>`;
 }
 
-const ASSET_CACHE_VERSION = "1.1.2-dev";
+const ASSET_CACHE_VERSION = "1.1.2";
 const UNKNOWN_FISH_PLACEHOLDER = "modules/light-fishing-minigame/assets/ui/poisson-inconnu.webp";
 
 function fishPreviewPath(src) {
