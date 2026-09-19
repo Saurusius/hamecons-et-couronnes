@@ -1,12 +1,12 @@
 name: Publish Release
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - master
     paths:
-      - ".github/workflows/publish-release.yml"
+      - "module.json"
+  workflow_dispatch:
 
 permissions:
   contents: write
