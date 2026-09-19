@@ -1,0 +1,49 @@
+name: Dev checks
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Hameçons & Couronnes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate manifest
+        run: node -e "const fs=require('fs'); const m=JSON.parse(fs.readFileSync('module.json','utf8')); if(!m.id||!m.version) throw new Error('module.json invalide'); console.log(m.id, m.version);"
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check scripts/main.js
+          node --check scripts/fish-data.js
+
+      - name: Validate game data
+        run: |
+          node --input-type=module <<'NODE'
+          import { ZONES, POISSONS, BOSS_PAR_ZONE } from './scripts/fish-data.js';
+          const ids = new Set(POISSONS.map(f => f.id));
+          if (ZONES.length !== 18) throw new Error(`18 zones attendues, reçu: ${ZONES.length}`);
+          if (POISSONS.length !== 144) throw new Error(`144 poissons attendus, reçu: ${POISSONS.length}`);
+          if (ids.size !== POISSONS.length) throw new Error('IDs de poissons dupliqués');
+          for (const fish of POISSONS) {
+            if (!fish.id || !fish.zoneId) throw new Error('Poisson incomplet');
+            if (!(Number(fish.poidsMin) < Number(fish.poidsMax))) throw new Error(`Poids invalides: ${fish.id}`);
+          }
+          for (const zone of ZONES) if (!BOSS_PAR_ZONE.get(zone.id)) throw new Error(`Boss manquant: ${zone.id}`);
+          console.log('Données validées.');
+          NODE
