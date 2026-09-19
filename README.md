@@ -4,9 +4,9 @@
 
 > **Pêchez. Explorez. Affrontez les monstres des eaux.**
 
-## Version de développement 1.1.2-dev — Stabilisation
+## Version 1.1.2 — Stabilisation
 
-Cette branche de développement prépare la 1.1.2. Elle conserve le gameplay de la 1.1.1 et renforce la stabilité des profils et des sauvegardes.
+La 1.1.2 conserve le gameplay de la 1.1.1 et renforce la stabilité des profils et des sauvegardes.
 
 La version comprend notamment :
 
