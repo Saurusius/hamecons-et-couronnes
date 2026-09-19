@@ -36,7 +36,7 @@ jobs:
       - name: Validate release metadata
         shell: bash
         run: |
-          EXPECTED="https://github.com/\${{ github.repository }}/releases/download/v\${{ steps.module.outputs.version }}/\${{ steps.module.outputs.zip }}"
+          EXPECTED="https://github.com/${{ github.repository }}/releases/download/v${{ steps.module.outputs.version }}/${{ steps.module.outputs.zip }}"
           ACTUAL=$(node -p "JSON.parse(require('fs').readFileSync('module.json','utf8')).download || ''")
           test "$ACTUAL" = "$EXPECTED" || { echo "::error::URL download incorrect"; echo "Attendu: $EXPECTED"; echo "Actuel: $ACTUAL"; exit 1; }
 
@@ -48,8 +48,8 @@ jobs:
       - name: Ensure tag does not already exist
         shell: bash
         run: |
-          if git ls-remote --exit-code --tags origin "refs/tags/\${{ steps.module.outputs.tag }}" >/dev/null 2>&1; then
-            echo "::error::Le tag \${{ steps.module.outputs.tag }} existe déjà."
+          if git ls-remote --exit-code --tags origin "refs/tags/${{ steps.module.outputs.tag }}" >/dev/null 2>&1; then
+            echo "::error::Le tag ${{ steps.module.outputs.tag }} existe déjà."
             exit 1
           fi
 
@@ -60,23 +60,23 @@ jobs:
           mkdir -p dist/package
           rsync -a ./ dist/package/ --exclude='.git' --exclude='.github' --exclude='dist' --exclude='install-local.ps1' --exclude='DEV_NOTES_*' --exclude='RELEASE_NOTES_*'
           cd dist/package
-          zip -r -9 "../\${{ steps.module.outputs.zip }}" .
+          zip -r -9 "../${{ steps.module.outputs.zip }}" .
           cd ../..
-          test -f "dist/\${{ steps.module.outputs.zip }}"
-          unzip -l "dist/\${{ steps.module.outputs.zip }}" | grep -q "module.json"
+          test -f "dist/${{ steps.module.outputs.zip }}"
+          unzip -l "dist/${{ steps.module.outputs.zip }}" | grep -q "module.json"
 
       - name: Upload ZIP as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: \${{ steps.module.outputs.zip }}
-          path: dist/\${{ steps.module.outputs.zip }}
+          name: ${{ steps.module.outputs.zip }}
+          path: dist/${{ steps.module.outputs.zip }}
           if-no-files-found: error
           retention-days: 30
           compression-level: 0
 
       - name: Create GitHub Release
         env:
-          GH_TOKEN: \${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          gh release create "\${{ steps.module.outputs.tag }}" "dist/\${{ steps.module.outputs.zip }}" --target master --title "Hameçons & Couronnes v\${{ steps.module.outputs.version }}" --generate-notes
+          gh release create "${{ steps.module.outputs.tag }}" "dist/${{ steps.module.outputs.zip }}" --target master --title "Hameçons & Couronnes v${{ steps.module.outputs.version }}" --generate-notes
