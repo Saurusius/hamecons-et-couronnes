@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $ModuleId = "light-fishing-minigame"
-$ExpectedVersion = "1.1.1"
+$ExpectedVersion = "1.1.2"
 $Source = (Resolve-Path (Split-Path -Parent $MyInvocation.MyCommand.Path)).Path
 $ModulesPath = Join-Path $FoundryDataPath "modules"
 $Target = Join-Path $ModulesPath $ModuleId

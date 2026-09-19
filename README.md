@@ -4,9 +4,11 @@
 
 > **Pêchez. Explorez. Affrontez les monstres des eaux.**
 
-## Version 1.1.1 — La Vague des Trophées
+## Version 1.1.2 — Stabilisation
 
-La branche publique stable contient notamment :
+La 1.1.2 conserve le gameplay de la 1.1.1 et renforce la stabilité des profils et des sauvegardes.
+
+La version comprend notamment :
 
 - **18 zones** progressives inspirées de Kingmaker ;
 - **144 poissons d’eau douce**, dont **18 boss** ;
