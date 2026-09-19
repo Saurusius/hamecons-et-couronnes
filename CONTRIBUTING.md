@@ -1,11 +1,35 @@
 # Workflow Git — Hameçons & Couronnes
 
-Le dépôt suit désormais le modèle de Ravel :
+Le dépôt suit le modèle de travail de Ravel :
 
-- `master` : branche stable / production. Ne pas développer directement dessus.
+- `master` : branche stable / production. Aucun développement direct dessus.
 - `dev` : branche d'intégration permanente. Toutes les corrections et fonctionnalités validées y arrivent.
-- `feature/*` : nouvelles fonctionnalités, créées depuis `dev`, puis PR vers `dev`.
-- `fix/*` : corrections, créées depuis `dev`, puis PR vers `dev`.
+- `feature/*` : nouvelles fonctionnalités, créées depuis `dev`, puis fusionnées vers `dev`.
+- `fix/*` : corrections, créées depuis `dev`, puis fusionnées vers `dev`.
+
+## Convention de commits
+
+Les commits utilisent un préfixe court et explicite :
+
+- `feat:` nouvelle fonctionnalité ;
+- `fix:` correction de bug ;
+- `data:` contenu / données de jeu ;
+- `ui:` interface ou présentation ;
+- `docs:` documentation ;
+- `ci:` GitHub Actions / automatisation ;
+- `refactor:` restructuration sans changement fonctionnel ;
+- `chore:` maintenance technique ;
+- `release:` préparation ou publication d'une version.
+
+Un scope optionnel est accepté, par exemple :
+`feat(fishing): add legendary catch animation`
+
+Exemples :
+`fix: prevent duplicate fish rewards`
+`data: rebalance Glenebon boss weights`
+`ci: expose dev to master promotion action`
+
+Les commits de merge générés par GitHub sont acceptés automatiquement.
 
 ## Publication
 
