@@ -1,6 +1,4 @@
-# Hameçons & Couronnes — 1.1.2-dev
-
-Branche de développement : `fix/1.1.2-bugfix`.
+# Hameçons & Couronnes — 1.1.2
 
 ## Stabilisation
 
