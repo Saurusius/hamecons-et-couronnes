@@ -42,7 +42,7 @@ jobs:
           if (ids.size !== POISSONS.length) throw new Error('IDs de poissons dupliqués');
           for (const fish of POISSONS) {
             if (!fish.id || !fish.zoneId) throw new Error('Poisson incomplet');
-            if (!(Number(fish.poidsMin) < Number(fish.poidsMax))) throw new Error(`Poids invalides: ${fish.id}`);
+            if (!(Number(fish.min) < Number(fish.max))) throw new Error(`Poids invalides: ${fish.id}`);
           }
           for (const zone of ZONES) if (!BOSS_PAR_ZONE.get(zone.id)) throw new Error(`Boss manquant: ${zone.id}`);
           console.log('Données validées.');
